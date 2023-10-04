@@ -1,0 +1,164 @@
+#!/bin/bash
+
+# Constants
+VERSION="v0.1.0"
+
+# Function to display the manual page
+display_manual() {
+    cat <<EOF
+internsctl(1)                                  User Commands                                  internsctl(1)
+
+NAME
+       internsctl - Custom Linux command for server operations
+
+SYNOPSIS
+       internsctl [OPTION]... COMMAND [ARGS]...
+
+DESCRIPTION
+       The internsctl command is a custom Linux command for server operations.
+
+OPTIONS
+       --help      Display this help message and exit.
+       --version   Display the version of internsctl ($VERSION) and exit.
+
+COMMANDS
+       cpu getinfo         Get CPU information.
+       memory getinfo      Get memory information.
+       user create <username>   Create a new user.
+       user list           List all regular users.
+       user list --sudo-only    List users with sudo permissions.
+       file getinfo <file-name>  Get information about a file.
+
+EXAMPLES
+       - To get CPU information:
+         internsctl cpu getinfo
+
+       - To get memory information:
+         internsctl memory getinfo
+
+       - To create a new user:
+         internsctl user create <username>
+
+       - To list all regular users:
+         internsctl user list
+
+       - To list users with sudo permissions:
+         internsctl user list --sudo-only
+
+       - To get information about a file:
+         internsctl file getinfo <file-name>
+
+OPTIONS
+       --size, -s        Print file size.
+       --permissions, -p Print file permissions.
+       --owner, -o       Print file owner.
+       --last-modified, -m  Print last modified time.
+
+EOF
+}
+
+# Function to get CPU information
+get_cpu_info() {
+    lscpu
+}
+
+# Function to get memory information
+get_memory_info() {
+    free
+}
+
+# Function to create a new user
+create_user() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: internsctl user create <username>"
+        exit 1
+    fi
+    username="$1"
+    sudo useradd -m "$username"
+    echo "User '$username' created successfully."
+}
+
+# Function to list users
+list_users() {
+    if [ "$1" == "--sudo-only" ]; then
+        grep -Po '^sudo.+:\K.*$' /etc/group | tr ',' '\n'
+    else
+        getent passwd | cut -d: -f1
+    fi
+}
+
+
+# Function to get file information
+get_file_info() {
+    local file="$1"
+    
+    if [ -z "$file" ]; then
+        echo "Usage: internsctl file getinfo [OPTIONS] <file-name>"
+        exit 1
+    fi
+
+    if [ ! -e "$file" ]; then
+        echo "File '$file' does not exist."
+        exit 1
+    fi
+
+    echo "File: $file"
+    
+    if [ "$2" == "--size" ]; then
+        local size=$(stat -c%s "$file")
+        echo "Size(B): $size"
+    elif [ "$2" == "--permissions" ]; then
+        local permissions=$(stat -c%a "$file")
+        echo "Permissions: $permissions"
+    elif [ "$2" == "--owner" ]; then
+        local owner=$(stat -c%U "$file")
+        echo "Owner: $owner"
+    elif [ "$2" == "--last-modified" ]; then
+        local last_modified=$(stat -c%y "$file")
+        echo "Last Modified: $last_modified"
+    else
+        echo "Invalid option: $2"
+        exit 1
+    fi
+}
+
+# Main script
+case "$1" in
+    cpu)
+        get_cpu_info
+        ;;
+    memory)
+        get_memory_info
+        ;;
+    user)
+        shift
+        case "$1" in
+            create)
+                shift
+                create_user "$@"
+                ;;
+            list)
+                shift
+                list_users "$@"
+                ;;
+            *)
+                echo "Invalid user command: $1"
+                exit 1
+                ;;
+        esac
+        ;;
+    file)
+        shift
+        get_file_info "$@"
+        ;;
+    --help)
+        display_manual
+        ;;
+    --version)
+        echo "internsctl version $VERSION"
+        ;;
+    *)
+        echo "Invalid command: $1"
+        exit 1
+        ;;
+esac

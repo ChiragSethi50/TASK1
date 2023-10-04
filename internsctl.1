@@ -1,0 +1,74 @@
+.TH INTERNSCTL 1 "October 2023" "v0.1.0" "User Commands"
+.SH NAME
+internsctl \- Custom Linux command for server operations
+.SH SYNOPSIS
+.B internsctl
+[\fIOPTION\fR]...
+[\fICOMMAND\fR]...
+.SH DESCRIPTION
+The \fBinternsctl\fR command is a custom Linux command designed for various server operations.
+.P
+It provides different commands to perform tasks like retrieving CPU and memory information, managing users, and obtaining file details.
+.SH OPTIONS
+.TP
+.BR \-\-help
+Display all the available options for the command and exit.
+.TP
+.BR \-\-version
+Display the version of \fBinternsctl\fR (\fIv0.1.0\fR) and exit.
+.SH COMMANDS
+.TP
+.BR cpu  \ getinfo
+Get CPU information.
+.TP
+.BR memory \ getinfo
+Get memory information.
+.TP
+.BR user \ create
+Create a new user. Specify the username as an argument.
+.TP
+.BR user \ list
+List all regular users.
+.TP
+.BR user \ list \ \-\-sudo-only
+List users with sudo permissions.
+.TP
+.BR file \ getinfo
+Get information about a file. Specify the file name as an argument.
+.SH EXAMPLES
+.P
+To get CPU information:
+.BR internsctl \ cpu \ getinfo
+.P
+To get memory information:
+.BR internsctl \ memory \ getinfo
+.P
+To create a new user:
+.BR internsctl \ user \ create \  \fI<username>\fR
+.P
+To list all regular users:
+.BR internsctl \ user \ list
+.P
+To list users with sudo permissions:
+.BR internsctl \ user \ list \ \-\-sudo-only
+.P
+To get information about a file:
+.BR internsctl \ file \ getinfo \ \fI<file-name>\fR
+.SH FILE INFO OPTIONS
+.TP
+.BR \-\-size , \-s
+Print the size of the specified file.
+.TP
+.BR \-\-permissions , \-p
+Print the file permissions of the specified file.
+.TP
+.BR \-\-owner , \-o
+Print the owner of the specified file.
+.TP
+.BR \-\-last-modified , \-m
+Print the last modified time of the specified file.
+.SH SEE ALSO
+.P
+lscpu		free		useradd.
+.SH AUTHOR
+Created by Chirag Sethi "<co20312>"
